@@ -40,7 +40,4 @@ def process(text: str) -> str:
     except Exception:
         pass
 
-    # Step 4: final cleanup
-    text = normalize_whitespace(text)
-
-    return text
+    return normalize_whitespace(text)
