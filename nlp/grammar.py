@@ -1,6 +1,10 @@
-import language_tool_python
-
-_tool = language_tool_python.LanguageTool('en-US')
+import re
 
 def fix_grammar(text: str) -> str:
-    return _tool.correct(text)
+    # Basic cleanup — safe & fast
+    text = re.sub(r"\s+,", ",", text)
+    text = re.sub(r"\s+\.", ".", text)
+    text = re.sub(r"\s+\?", "?", text)
+    text = re.sub(r"\s+!", "!", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
