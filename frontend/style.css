@@ -1,0 +1,178 @@
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: white;
+}
+
+button:hover {
+  background: #f1f5f9;
+}
+
+.mic-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mic-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.main {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+textarea {
+  height: 230px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.output-box {
+  height: 230px;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions img {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.actions img:hover {
+  opacity: 1;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0f172a;
+  color: white;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #eef2f7;
+}
+
+.card {
+  width: 860px;
+  max-width: 90%;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 42px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 15px;
+}
+.left-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+select {
+  padding: 4px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+}

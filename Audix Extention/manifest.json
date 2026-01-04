@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Audix",
+  "description": "Intelligent low-latency dictation and text cleanup",
+  "version": "1.0",
+
+  "permissions": ["activeTab"],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "commands": {
+    "toggle-audix": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K"
+      },
+      "description": "Toggle Audix"
+    }
+  },
+  "web_accessible_resources": [
+  {
+    "resources": ["assets/*.svg"],
+    "matches": ["<all_urls>"]
+  }
+],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+    "run_at": "document_idle"
+    }
+  ]
+}

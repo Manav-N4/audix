@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Audix</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="page">
+    <div class="card">
+
+      <div class="header">
+        <h1>Audix</h1>
+        <p>Intelligent Speech Dictation</p>
+      </div>
+
+      <div class="controls">
+        <button class="mic-btn" onclick="startDictation()">
+          <img id="micIcon" src="assets/mic-off.svg" />
+          <span id="micStatus">Mic OFF</span>
+        </button>
+      </div>
+
+      <div class="main">
+        <div class="panel">
+          <label>Live / Raw</label>
+          <textarea
+            id="input"
+            placeholder="Speak or paste text here..."
+          ></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+  <div class="left-header">
+    <label>Final / Cleaned</label>
+  </div>
+
+  <div class="actions">
+    <img src="assets/copy.svg" onclick="copyOutput()" />
+    <img src="assets/download.svg" onclick="downloadOutput()" />
+    <img src="assets/bin.svg" onclick="clearText()" />
+  </div>
+</div>
+
+          </div>
+
+          <div id="output" class="output-box"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="script.js"></script>
+</body>
+
+</html>
