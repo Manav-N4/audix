@@ -1,6 +1,11 @@
 console.log("AUDIX CONTENT SCRIPT READY");
 
 // ===============================
+// CONFIG
+// ===============================
+const AUDIX_API = "https://audix-production.up.railway.app/process";
+
+// ===============================
 // Shortcut → toggle handler
 // ===============================
 chrome.runtime.onMessage.addListener((msg) => {
@@ -21,22 +26,19 @@ function createAudix() {
 
   container.innerHTML = `
     <div class="audix-box">
-     <div id="audix-header">
-  <h2>Audix</h2>
+      <div id="audix-header">
+        <h2>Audix</h2>
 
-  <button id="audix-close" class="close-btn" aria-label="Close">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <circle cx="12" cy="12" r="12" fill="#ff5f56"/>
-  <path d="M8 8L16 16M16 8L8 16"
-        stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"/>
-</svg>
-
-  </button>
-</div>
-
-
+        <button id="audix-close" class="close-btn" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="12" fill="#ff5f56"/>
+            <path d="M8 8L16 16M16 8L8 16"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
 
       <div class="columns">
         <textarea id="audix-input" placeholder="Speak or type…"></textarea>
@@ -44,47 +46,35 @@ function createAudix() {
       </div>
 
       <div class="controls">
-        <button id="mic-btn" class="icon-btn">
-          <img id="mic-icon" />
-        </button>
-
-        <button id="copy-btn" class="icon-btn">
-          <img id="copy-icon" />
-        </button>
-
-        <button id="clear-btn" class="icon-btn">
-          <img id="clear-icon" />
-        </button>
-
-        <button id="download-btn" class="icon-btn">
-          <img id="download-icon" />
-        </button>
+        <button id="mic-btn" class="icon-btn"><img id="mic-icon" /></button>
+        <button id="copy-btn" class="icon-btn"><img id="copy-icon" /></button>
+        <button id="clear-btn" class="icon-btn"><img id="clear-icon" /></button>
+        <button id="download-btn" class="icon-btn"><img id="download-icon" /></button>
       </div>
+
       <div class="resize-handle"></div>
     </div>
   `;
 
   document.body.appendChild(container);
-   makeAudixDraggable();
-   makeAudixResizable();
 
+  centerAudixOnce();
   resolveIcons();
+  makeAudixDraggable();
+  makeAudixResizable();
   wireAudix();
 }
 
 // ===============================
-// Icon resolution (CRITICAL FIX)
+// Icon resolution
 // ===============================
 function resolveIcons() {
   document.getElementById("mic-icon").src =
     chrome.runtime.getURL("assets/mic-off.svg");
-
   document.getElementById("copy-icon").src =
     chrome.runtime.getURL("assets/copy.svg");
-
   document.getElementById("clear-icon").src =
     chrome.runtime.getURL("assets/bin.svg");
-
   document.getElementById("download-icon").src =
     chrome.runtime.getURL("assets/download.svg");
 }
@@ -93,13 +83,9 @@ function resolveIcons() {
 // Toggle logic
 // ===============================
 function internalToggleAudix() {
-  if (!container) {
-    createAudix();
-    centerAudixOnce(); // ✅ only on first creation
-  }
-
-  const visible = container.style.display === "flex";
-  container.style.display = visible ? "none" : "flex";
+  if (!container) createAudix();
+  container.style.display =
+    container.style.display === "flex" ? "none" : "flex";
 }
 
 // ===============================
@@ -110,25 +96,14 @@ function wireAudix() {
   const output = document.getElementById("audix-output");
   const closeBtn = document.getElementById("audix-close");
 
-closeBtn.addEventListener("mousedown", e => {
-  e.stopPropagation(); // 🔥 THIS IS THE FIX
-});
-
-closeBtn.addEventListener("click", e => {
-  e.stopPropagation();
-  container.style.display = "none";
-});
-
-
-
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && container) {
+  closeBtn.addEventListener("mousedown", e => e.stopPropagation());
+  closeBtn.addEventListener("click", () => {
     container.style.display = "none";
-  }
-});
+  });
 
-
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") container.style.display = "none";
+  });
 
   input.addEventListener(
     "input",
@@ -140,14 +115,20 @@ document.addEventListener("keydown", e => {
 
       output.textContent = "Processing…";
 
-      const res = await fetch("http://localhost:8000/process", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input.value })
-      });
+      try {
+        const res = await fetch(AUDIX_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: input.value })
+        });
 
-      const data = await res.json();
-      output.textContent = data.output;
+        if (!res.ok) throw new Error("API error");
+
+        const data = await res.json();
+        output.textContent = data.output ?? "";
+      } catch {
+        output.textContent = "Audix backend unavailable";
+      }
     }, 700)
   );
 
@@ -167,8 +148,8 @@ document.addEventListener("keydown", e => {
 
     const blob = new Blob([output.textContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
+
     a.href = url;
     a.download = "audix-output.txt";
     a.click();
@@ -192,7 +173,7 @@ function debounce(fn, delay) {
 }
 
 // ===============================
-// Dictation (Web Speech API)
+// Dictation
 // ===============================
 let recognition = null;
 let recognizing = false;
@@ -216,29 +197,29 @@ function setupDictation() {
     document.getElementById("audix-input").value = text;
   };
 
-  recognition.onend = async () => {
-    recognizing = false;
-    document.getElementById("mic-icon").src =
-      chrome.runtime.getURL("assets/mic-off.svg");
-
-    sendDictationToBackend();
-  };
+  recognition.onend = sendDictationToBackend;
 }
 
 async function sendDictationToBackend() {
   const raw = document.getElementById("audix-input").value.trim();
   if (!raw) return;
 
-  document.getElementById("audix-output").textContent = "Processing…";
+  const output = document.getElementById("audix-output");
+  output.textContent = "Processing…";
 
-  const res = await fetch("http://localhost:8000/process", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: raw })
-  });
+  try {
+    const res = await fetch(AUDIX_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: raw })
+    });
 
-  const data = await res.json();
-  document.getElementById("audix-output").textContent = data.output;
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    output.textContent = data.output ?? "";
+  } catch {
+    output.textContent = "Audix backend unavailable";
+  }
 }
 
 // ===============================
@@ -252,7 +233,6 @@ function wireMicButton() {
     if (!recognition) return;
 
     recognizing = !recognizing;
-
     micIcon.src = chrome.runtime.getURL(
       recognizing ? "assets/mic-on.svg" : "assets/mic-off.svg"
     );
@@ -261,144 +241,81 @@ function wireMicButton() {
   };
 }
 
+// ===============================
+// Dragging
+// ===============================
 function makeAudixDraggable() {
-  const container = document.getElementById("audix-container");
   const header = document.getElementById("audix-header");
+  if (!header) return;
 
-  if (!container || !header) return;
-
-  let isDragging = false;
+  let dragging = false;
   let startX, startY, startLeft, startTop;
 
-header.addEventListener("mousedown", e => {
-  // ignore clicks on buttons inside header
-  if (e.target.closest("button")) return;
+  header.addEventListener("mousedown", e => {
+    if (e.target.closest("button")) return;
 
-  isDragging = true;
-  startX = e.clientX;
-  startY = e.clientY;
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
 
-  const rect = container.getBoundingClientRect();
-  startLeft = rect.left;
-  startTop = rect.top;
+    const rect = container.getBoundingClientRect();
+    startLeft = rect.left;
+    startTop = rect.top;
 
-  container.style.transform = "none";
-});
+    container.style.transform = "none";
+  });
+
   document.addEventListener("mousemove", e => {
-    if (!isDragging) return;
+    if (!dragging) return;
 
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
-
-    const newLeft = startLeft + dx;
-    const newTop = startTop + dy;
-
-    // confine to viewport
-    container.style.left = `${Math.max(0, newLeft)}px`;
-    container.style.top = `${Math.max(0, newTop)}px`;
+    container.style.left =
+      Math.max(0, startLeft + (e.clientX - startX)) + "px";
+    container.style.top =
+      Math.max(0, startTop + (e.clientY - startY)) + "px";
   });
 
-  document.addEventListener("mouseup", () => {
-    isDragging = false;
-    document.body.style.userSelect = "";
-  });
+  document.addEventListener("mouseup", () => dragging = false);
 }
 
-
-const box = document.querySelector(".audix-box");
-const header = box.querySelector("h2"); // or a drag bar
-
-let isDragging = false;
-let startX, startY, startLeft, startTop;
-
-header.addEventListener("mousedown", e => {
-  isDragging = true;
-  startX = e.clientX;
-  startY = e.clientY;
-  const rect = box.getBoundingClientRect();
-  startLeft = rect.left;
-  startTop = rect.top;
-});
-
-document.addEventListener("mousemove", e => {
-  if (!isDragging) return;
-
-  const dx = e.clientX - startX;
-  const dy = e.clientY - startY;
-
-  const newLeft = startLeft + dx;
-  const newTop = startTop + dy;
-
-  const rect = box.getBoundingClientRect();
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  const minLeft = 10;
-  const minTop = 10;
-  const maxLeft = vw - rect.width - 10;
-  const maxTop = vh - rect.height - 10;
-
-  box.style.left =
-    Math.min(Math.max(newLeft, minLeft), maxLeft) + "px";
-
-  box.style.top =
-    Math.min(Math.max(newTop, minTop), maxTop) + "px";
-
-  box.style.position = "fixed";
-});
-
-
-document.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+// ===============================
+// Resizing
+// ===============================
 function makeAudixResizable() {
-  const container = document.getElementById("audix-container");
-  if (!container) return;
-
   const handle = container.querySelector(".resize-handle");
-  if (!handle) return; // 🔒 prevents crash
+  if (!handle) return;
 
   let resizing = false;
   let startX, startY, startW, startH;
 
   handle.addEventListener("mousedown", e => {
     e.preventDefault();
-    e.stopPropagation();
-
     resizing = true;
     startX = e.clientX;
     startY = e.clientY;
-
     startW = container.offsetWidth;
     startH = container.offsetHeight;
-
-    document.body.style.userSelect = "none";
   });
 
   document.addEventListener("mousemove", e => {
     if (!resizing) return;
 
-    const newW = startW + (e.clientX - startX);
-    const newH = startH + (e.clientY - startY);
-
     container.style.width =
-      Math.min(Math.max(newW, 480), window.innerWidth * 0.9) + "px";
-
+      Math.min(Math.max(startW + (e.clientX - startX), 480), window.innerWidth * 0.9) + "px";
     container.style.height =
-      Math.min(Math.max(newH, 320), window.innerHeight * 0.85) + "px";
+      Math.min(Math.max(startH + (e.clientY - startY), 320), window.innerHeight * 0.85) + "px";
   });
 
-  document.addEventListener("mouseup", () => {
-    resizing = false;
-    document.body.style.userSelect = "";
-  });
+  document.addEventListener("mouseup", () => resizing = false);
 }
+
+// ===============================
+// Centering
+// ===============================
 function centerAudixOnce() {
-  const container = document.getElementById("audix-container");
-  if (!container.dataset.centered) {
-    const rect = container.getBoundingClientRect();
-    container.style.left = `${(window.innerWidth - rect.width) / 2}px`;
-    container.style.top = `${(window.innerHeight - rect.height) / 2}px`;
-    container.dataset.centered = "true";
-  }
+  if (container.dataset.centered) return;
+
+  const rect = container.getBoundingClientRect();
+  container.style.left = `${(window.innerWidth - rect.width) / 2}px`;
+  container.style.top = `${(window.innerHeight - rect.height) / 2}px`;
+  container.dataset.centered = "true";
 }
