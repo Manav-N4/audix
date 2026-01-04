@@ -1,36 +1,46 @@
-import re
+# pipeline/full_pipeline.py
 
 from nlp.fillers import remove_fillers
 from nlp.repetition import remove_repetition
-from nlp.grammar import fix_grammar
-from nlp.formatting import format_text
-from nlp.intent import classify_intent
-from nlp.hedging import handle_hedges
-from nlp.prosody import normalize_prosody
-from nlp.clauses import collapse_redundant_clauses
-from nlp.writing import normalize_writing
+
+
+def normalize_whitespace(text: str) -> str:
+    """Clean spacing and line breaks."""
+    lines = [line.strip() for line in text.splitlines()]
+    text = " ".join(lines)
+    return " ".join(text.split())
+
 
 def process(text: str) -> str:
+    """
+    Main Audix processing pipeline.
 
-    text = normalize_prosody(text)
-    text = remove_fillers(text)
-    text = remove_repetition(text)
+    Order matters:
+    1. Normalize text
+    2. Remove filler words (uh, um, like, etc.)
+    3. Remove repetitions
+    4. Final cleanup
+    """
 
-    sentences = [s.strip() for s in re.split(r"[.!?]", text) if s.strip()]
+    if not text or not text.strip():
+        return ""
 
-    cleaned = []
-    for s in sentences:
-        intent = classify_intent(s)
-        s = handle_hedges(s, intent)
-        s = normalize_writing(s)
-        cleaned.append(s)
+    # Step 1: normalize input
+    text = normalize_whitespace(text)
 
+    # Step 2: remove filler words
+    try:
+        text = remove_fillers(text)
+    except Exception:
+        pass  # never crash pipeline
 
-    # 🔥 NEW: collapse repeated clauses
-    cleaned = collapse_redundant_clauses(cleaned)
+    # Step 3: remove repetitions
+    try:
+        text = remove_repetition(text)
+    except Exception:
+        pass
 
-    text = ". ".join(cleaned)
-    text = fix_grammar(text)
-    text = format_text(text)
+    # Step 4: final cleanup
+    text = normalize_whitespace(text)
 
     return text
