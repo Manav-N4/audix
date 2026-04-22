@@ -1,6 +1,13 @@
 console.log("AUDIX CONTENT SCRIPT READY");
 
 // ===============================
+// CONFIG - Switch this to your Railway URL for production
+// ===============================
+const IS_PRODUCTION = false; // Toggle this to true when your Railway is live
+const PROD_URL = "https://your-railway-url.up.railway.app";
+const BASE_URL = IS_PRODUCTION ? PROD_URL : "http://localhost:8000";
+
+// ===============================
 // Shortcut → toggle handler
 // ===============================
 if (!chrome.runtime?.id) {
@@ -103,7 +110,7 @@ function wireAudix() {
       return;
     }
     output.textContent = "Processing...";
-    const res = await fetch("http://localhost:8000/process", {
+    const res = await fetch(`${BASE_URL}/process`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text })

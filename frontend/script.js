@@ -1,8 +1,15 @@
 // =======================
 // GLOBAL STATE
 // =======================
+// ===============================
+// CONFIG
+// ===============================
+const IS_PRODUCTION = false; 
+const PROD_URL = "https://your-railway-url.up.railway.app";
+const BASE_URL = IS_PRODUCTION ? PROD_URL : "http://127.0.0.1:8000";
+
 let typingTimer;
-const TYPING_DELAY = 700;
+const TYPING_DELAY = 1000;
 
 let suppressTypingProcessing = false;
 let lastRawText = "";
@@ -52,7 +59,7 @@ async function processTypedText() {
   document.getElementById("output").classList.add("loading");
   
   try {
-    const res = await fetch("http://127.0.0.1:8000/process", {
+    const res = await fetch(`${BASE_URL}/process`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text })
