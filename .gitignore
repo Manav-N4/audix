@@ -10,3 +10,8 @@ venv/
 
 # OS
 .DS_Store
+audio/*.wav
+audio/*.webm
+*.log
+models/
+.ipynb_checkpoints/

@@ -1,50 +1,62 @@
 import re
 
-def normalize_token(token: str) -> str:
-    # lowercase + strip punctuation for comparison
-    return re.sub(r"[^\w']", "", token.lower())
-
-
 def remove_repetition(text: str) -> str:
+    """
+    Removes accidental word repetition while preserving:
+    - emphasis
+    - negation
+    - emotional intent
+    - rhetorical repetition
+
+    Design:
+    - Never delete meaning words entirely
+    - Reduce repetition softly (collapse, not amputate)
+    """
+
+    if not text:
+        return text
+
     tokens = text.split()
     if len(tokens) < 2:
         return text
 
     cleaned = []
-    prev_norm = None
-
-    for token in tokens:
-        norm = normalize_token(token)
-
-        # skip if same token repeated (we, we | it's not, it's not)
-        if norm and norm == prev_norm:
-            continue
-
-        cleaned.append(token)
-        prev_norm = norm
-
-    # SECOND PASS: collapse repeated short phrases (2–4 tokens)
-    result = []
     i = 0
-    while i < len(cleaned):
-        # try phrase lengths from 4 down to 2
-        collapsed = False
-        for size in range(4, 1, -1):
-            if i + size * 2 <= len(cleaned):
-                a = cleaned[i:i+size]
-                b = cleaned[i+size:i+size*2]
 
-                a_norm = [normalize_token(t) for t in a]
-                b_norm = [normalize_token(t) for t in b]
+    while i < len(tokens):
+        current = tokens[i]
+        word = current.lower()
+        count = 1
 
-                if a_norm == b_norm:
-                    result.extend(a)
-                    i += size * 2
-                    collapsed = True
-                    break
+        # Count consecutive repetitions
+        while (
+            i + count < len(tokens)
+            and tokens[i + count].lower() == word
+        ):
+            count += 1
 
-        if not collapsed:
-            result.append(cleaned[i])
-            i += 1
+        # Heuristics
+        is_short = len(word) <= 4
+        is_function_word = word in {"a", "an", "the", "to", "of", "in", "on"}
+        is_negation = word in {"no", "not", "never"}
+        is_emotional = count >= 3  # strong repetition
+        is_sentence_start = len(cleaned) == 0
 
-    return " ".join(result)
+        # --- Decision logic ---
+
+        # 1️⃣ Clear accidental duplication: "the the", "is is", "we we"
+        # We now remove these even if they are at the start of a sentence.
+        if count == 2 and (is_short or is_function_word or is_negation):
+            cleaned.append(current)
+
+        # 2️⃣ Emotional or rhetorical repetition (3+ times) → keep
+        elif is_emotional:
+            cleaned.extend([current] * count)
+
+        # 3️⃣ Everything else → reduce
+        else:
+            cleaned.append(current)
+
+        i += count
+
+    return " ".join(cleaned)

@@ -2,59 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Audix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audix | AI Speech Dictation</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <div class="page">
     <div class="card">
-
-      <div class="header">
+      <canvas id="visualizer"></canvas>
+      
+      <header class="header">
         <h1>Audix</h1>
-        <p>Intelligent Speech Dictation</p>
-      </div>
+        <p>Intelligent Speech Pipeline</p>
+      </header>
 
       <div class="controls">
-        <button class="mic-btn" onclick="startDictation()">
-          <img id="micIcon" src="assets/mic-off.svg" />
-          <span id="micStatus">Mic OFF</span>
+        <button id="micBtn" class="mic-btn" onclick="startDictation()" aria-label="Toggle Microphone">
+          <img id="micIcon" src="assets/mic-off.svg" alt="Microphone Icon" />
+          <span id="micStatus">Standby</span>
         </button>
       </div>
 
-      <div class="main">
-        <div class="panel">
-          <label>Live / Raw</label>
+      <main class="main">
+        <section class="panel">
+          <label>Inbound Context</label>
           <textarea
             id="input"
-            placeholder="Speak or paste text here..."
+            placeholder="Recording stream or manual input..."
           ></textarea>
-        </div>
+        </section>
 
-        <div class="panel">
+        <section class="panel">
           <div class="panel-header">
-  <div class="left-header">
-    <label>Final / Cleaned</label>
-  </div>
-
-  <div class="actions">
-    <img src="assets/copy.svg" onclick="copyOutput()" />
-    <img src="assets/download.svg" onclick="downloadOutput()" />
-    <img src="assets/bin.svg" onclick="clearText()" />
-  </div>
-</div>
-
+            <label>Transformed Output</label>
+            <div class="actions">
+              <img src="assets/copy.svg" onclick="copyOutput()" title="Copy to clipboard" />
+              <img src="assets/download.svg" onclick="downloadOutput()" title="Download as text file" />
+              <img src="assets/bin.svg" onclick="clearText()" title="Clear all" />
+            </div>
           </div>
-
           <div id="output" class="output-box"></div>
-        </div>
-      </div>
+        </section>
+      </main>
 
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast">Copied to clipboard</div>
   <script src="script.js"></script>
 </body>
-
 </html>
