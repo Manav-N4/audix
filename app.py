@@ -3,6 +3,7 @@ from fastapi import FastAPI, UploadFile, File
 from pipeline.full_pipeline import process
 from stt.whisper_engine import transcribe_audio
 import tempfile
+import uvicorn
 import os
 
 app = FastAPI(title="Audix Backend")
@@ -86,3 +87,7 @@ async def dictate(audio: UploadFile = File(...)):
     finally:
         if 'tmp_path' in locals() and os.path.exists(tmp_path):
             os.remove(tmp_path)
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
