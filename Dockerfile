@@ -1,10 +1,11 @@
 # Use a lightweight Python base
 FROM python:3.10-slim
 
-# Install system dependencies for audio and faster-whisper
+# Install system dependencies for audio, faster-whisper, and grammar engine (Java)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libgomp1 \
+    default-jre-headless \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
