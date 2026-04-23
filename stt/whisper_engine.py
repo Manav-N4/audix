@@ -1,13 +1,15 @@
 from faster_whisper import WhisperModel
 import time
 import re
+import os
 
 # Increase threads and workers for M-series Mac speed
+threads = int(os.getenv("WHISPER_THREADS", "4"))
 model = WhisperModel(
     "small.en",
     device="cpu",
     compute_type="int8",
-    cpu_threads=4,
+    cpu_threads=threads,
     num_workers=2
 )
 

@@ -5,7 +5,7 @@ from stt.whisper_engine import transcribe_audio
 import tempfile
 import os
 
-app = FastAPI()
+app = FastAPI(title="Audix Backend")
 
 app.add_middleware(
     CORSMiddleware,
