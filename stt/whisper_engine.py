@@ -3,14 +3,14 @@ import time
 import re
 import os
 
-# Increase threads and workers for M-series Mac speed
-threads = int(os.getenv("WHISPER_THREADS", "4"))
+# Optimized for Render Free Tier (512MB RAM)
+threads = int(os.getenv("WHISPER_THREADS", "2"))
 model = WhisperModel(
-    "small.en",
+    "base.en",
     device="cpu",
     compute_type="int8",
     cpu_threads=threads,
-    num_workers=2
+    num_workers=1
 )
 
 def transcribe_audio(path: str) -> str:
