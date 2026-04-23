@@ -24,7 +24,7 @@ h11
 transformers
 torch
 sentencepiece
-language_tool_python
+sentencepiece
 
 # Utilities
 tqdm

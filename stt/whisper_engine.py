@@ -3,10 +3,10 @@ import time
 import re
 import os
 
-# Optimized for Render Free Tier (512MB RAM)
-threads = int(os.getenv("WHISPER_THREADS", "2"))
+# Optimized for Render Free Tier (ULTRA-LEAN)
+threads = int(os.getenv("WHISPER_THREADS", "1"))
 model = WhisperModel(
-    "base.en",
+    "tiny.en",
     device="cpu",
     compute_type="int8",
     cpu_threads=threads,

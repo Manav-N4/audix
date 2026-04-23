@@ -38,14 +38,9 @@ async def process_text(data: dict):
         return JSONResponse(content={"error": str(e)}, status_code=500)
 @app.on_event("startup")
 async def startup_event():
-    print("[Audix] Waking up Deep AI models...")
-    try:
-        from nlp.deep_ai import get_pipeline
-        get_pipeline()
-        print("[Audix] Systems ready.")
-    except Exception as e:
-        print(f"[Audix] WARNING: Deep AI could not be pre-loaded: {e}")
-        print("[Audix] System will fall back to fast heuristic mode.")
+    print("[Audix] Systems waking up...")
+    print("[Audix] Deep AI will lazy-load on demand to save RAM.")
+    print("[Audix] Systems ready.")
 
 @app.post("/dictate")
 async def dictate(audio: UploadFile = File(...)):

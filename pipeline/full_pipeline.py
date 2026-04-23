@@ -61,6 +61,17 @@ def process(text: str, deep: bool = False) -> str:
     text = ". ".join(cleaned)
     text = normalize_writing(text)
 
+    # Lightweight Cleaning Logic (Replacement for heavy Grammar Engine)
+    def clean_text_lightweight(text: str) -> str:
+        # 1. Basic capitalization and punctuation fixes
+        text = text.capitalize()
+        if not text.endswith(('.', '!', '?')):
+            text += "."
+        return text
+
+    # Stage 6 replacement
+    # text = clean_text_lightweight(text)
+
     print("[Pipeline] Stage 8: Grammar correction (with speed budget)...")
     loop_start = time.time()
     final_cleaned = []
